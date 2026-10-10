@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>维尼的小窝 🧸</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🧸</text></svg>">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei", sans-serif;
+    color: #6b5d55;
+    background: linear-gradient(160deg, #fff8f4 0%, #fdeef0 45%, #f0effb 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ---------- 第一页：视频开场 ---------- */
+  #intro {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    background: linear-gradient(160deg, #fff8f4 0%, #fdeef0 45%, #f0effb 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    padding: 24px;
+    transition: opacity 1s ease, visibility 1s ease;
+    cursor: pointer;
+  }
+  #intro.hide {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  #intro .bear {
+    font-size: 46px;
+    animation: float 4s ease-in-out infinite;
+    filter: drop-shadow(0 6px 12px rgba(196, 170, 160, .35));
+  }
+
+  .video-card {
+    background: rgba(255, 255, 255, .82);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, .95);
+    border-radius: 28px;
+    padding: 12px;
+    box-shadow: 0 18px 44px rgba(196, 170, 160, .28);
+    transition: transform .3s ease, box-shadow .3s ease;
+  }
+  #intro:hover .video-card {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 24px 54px rgba(196, 170, 160, .36);
+  }
+
+  #intro video {
+    display: block;
+    max-width: min(88vw, 560px);
+    max-height: 68vh;
+    border-radius: 20px;
+    object-fit: contain;
+  }
+
+  #intro .hint {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: #cfc0b6;
+  }
+  #intro .hint::before, #intro .hint::after {
+    content: "·";
+    margin: 0 10px;
+    color: #e5c8cd;
+  }
+
+  /* ---------- 第二页：小窝主页 ---------- */
+  #home {
+    display: none;
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 20px;
+  }
+  #home.show { display: flex; }
+
+  .blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: .5;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .blob-1 { width: 340px; height: 340px; background: #ffe3e8; top: -80px; left: -60px; }
+  .blob-2 { width: 300px; height: 300px; background: #e8e4ff; bottom: -60px; right: -40px; }
+  .blob-3 { width: 220px; height: 220px; background: #ffeede; top: 40%; right: -80px; }
+
+  /* 背景上的可爱小元素 */
+  .deco {
+    position: fixed;
+    z-index: 0;
+    pointer-events: none;
+    opacity: .55;
+    animation: drift 9s ease-in-out infinite;
+  }
+  @keyframes drift {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(6deg); }
+  }
+  .deco-1 { top: 12%; left: 10%; font-size: 26px; animation-delay: 0s; }
+  .deco-2 { top: 22%; right: 12%; font-size: 20px; animation-delay: -2.5s; }
+  .deco-3 { bottom: 26%; left: 14%; font-size: 22px; animation-delay: -5s; }
+  .deco-4 { bottom: 14%; right: 10%; font-size: 26px; animation-delay: -1.2s; }
+  .deco-5 { top: 48%; left: 6%;  font-size: 16px; animation-delay: -3.8s; }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 560px;
+    text-align: center;
+  }
+
+  #home .bear {
+    font-size: 52px;
+    display: block;
+    margin-bottom: 6px;
+    animation: float 4s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  h1 {
+    font-size: 34px;
+    font-weight: 600;
+    letter-spacing: 6px;
+    color: #7a6a5f;
+  }
+  h1 .dot { color: #f2a7b3; }
+
+  .subtitle {
+    margin-top: 12px;
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: #b9a99e;
+  }
+  .subtitle::before, .subtitle::after {
+    content: "·";
+    margin: 0 10px;
+    color: #e5c8cd;
+  }
+
+  .greet {
+    margin-top: 14px;
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: #b9a99e;
+  }
+
+  .daily {
+    display: inline-block;
+    margin-top: 18px;
+    background: rgba(255, 255, 255, .72);
+    border: 1px solid rgba(255, 255, 255, .9);
+    border-radius: 999px;
+    padding: 9px 20px;
+    font-size: 12.5px;
+    letter-spacing: 1.5px;
+    color: #a08e83;
+    box-shadow: 0 4px 14px rgba(196, 170, 160, .14);
+  }
+
+  #home .bear {
+    cursor: pointer;
+    user-select: none;
+    transition: transform .18s ease;
+  }
+  #home .bear:hover { transform: scale(1.12) rotate(-6deg); }
+  #home .bear:active { transform: scale(.92); }
+
+  .heart-pop {
+    position: fixed;
+    z-index: 60;
+    pointer-events: none;
+    animation: rise 1.4s ease-out forwards;
+  }
+  @keyframes rise {
+    from { opacity: 1; transform: translateY(0) scale(.8); }
+    to   { opacity: 0; transform: translateY(-100px) scale(1.5); }
+  }
+
+  .grid {
+    margin-top: 44px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  @media (max-width: 480px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: rgba(255, 255, 255, .78);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, .9);
+    border-radius: 24px;
+    padding: 26px 16px 22px;
+    text-decoration: none;
+    color: #6b5d55;
+    box-shadow: 0 8px 24px rgba(196, 170, 160, .16);
+    transition: transform .25s ease, box-shadow .25s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 32px rgba(196, 170, 160, .26);
+  }
+  .card:active { transform: translateY(-2px); }
+
+  .icon {
+    width: 76px;
+    height: 76px;
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: transform .25s ease;
+  }
+  .card:hover .icon { transform: scale(1.1) rotate(-4deg); }
+
+  .icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 22px;
+  }
+
+  .ic-xhs  { background: #ffe9ec; }
+  .ic-dy   { background: #eef7f7; }
+  .ic-bili { background: #eef1ff; }
+  .ic-hg   { background: #ffeee6; }
+
+  .name {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: #7a6a5f;
+  }
+  .en {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: #c2b3a8;
+    margin-top: -6px;
+  }
+
+  footer {
+    margin-top: 44px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: #cfc0b6;
+  }
+
+  /* 更多入口 */
+  .more {
+    margin-top: 26px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .more a {
+    text-decoration: none;
+    font-size: 12.5px;
+    letter-spacing: 1px;
+    color: #a08e83;
+    background: rgba(255, 255, 255, .72);
+    border: 1px solid rgba(255, 255, 255, .9);
+    border-radius: 999px;
+    padding: 8px 16px;
+    box-shadow: 0 4px 14px rgba(196, 170, 160, .14);
+    transition: transform .22s ease, color .22s ease;
+  }
+  .more a:hover { transform: translateY(-3px); color: #7a6a5f; }
+
+  /* 今日小签 */
+  .fortune-zone { margin-top: 26px; }
+  .fortune-btn {
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: #a08e83;
+    background: rgba(255, 255, 255, .72);
+    border: 1px solid rgba(255, 255, 255, .9);
+    border-radius: 999px;
+    padding: 10px 22px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(196, 170, 160, .14);
+    transition: transform .22s ease, color .22s ease;
+  }
+  .fortune-btn:hover { transform: translateY(-3px); color: #7a6a5f; }
+  .fortune-btn:active { transform: scale(.95); }
+  .fortune-result {
+    display: none;
+    margin-top: 14px;
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: #7a6a5f;
+  }
+  .fortune-result.show { display: block; animation: pop .5s ease; }
+  @keyframes pop {
+    from { opacity: 0; transform: scale(.8); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  /* 小便签 */
+  .note {
+    margin-top: 28px;
+    width: 100%;
+    max-width: 560px;
+    background: #fffdf3;
+    border: 1px solid #f6ecd8;
+    border-radius: 18px;
+    padding: 14px 18px 16px;
+    box-shadow: 0 8px 24px rgba(196, 170, 160, .16);
+    text-align: left;
+  }
+  .note-title {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: #c2b3a8;
+    margin-bottom: 6px;
+  }
+  .note textarea {
+    width: 100%;
+    border: none;
+    background: transparent;
+    resize: none;
+    outline: none;
+    font-family: inherit;
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: #8a7a6e;
+    min-height: 60px;
+  }
+</style>
+</head>
+<body>
+
+  <!-- 第一页：视频开场 -->
+  <section id="intro">
+    <span class="bear">🧸</span>
+    <div class="video-card">
+      <video src="assets/winnie.mp4" autoplay muted loop playsinline></video>
+    </div>
+    <p class="hint">WINNIE'S LITTLE HOME 🤍</p>
+  </section>
+
+  <!-- 第二页：小窝主页 -->
+  <section id="home">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <span class="deco deco-1">⭐</span>
+    <span class="deco deco-2">🎀</span>
+    <span class="deco deco-3">🤍</span>
+    <span class="deco deco-4">✨</span>
+    <span class="deco deco-5">☁️</span>
+
+    <div class="wrap">
+      <span class="bear" id="bear" title="点点我">🧸</span>
+      <h1>维尼<span class="dot">的</span>小窝</h1>
+      <p class="subtitle">慢慢来，一切都刚刚好</p>
+      <p class="greet" id="greet"></p>
+      <p class="daily" id="daily"></p>
+
+      <div class="grid">
+
+        <a class="card" href="https://www.xiaohongshu.com" target="_blank" rel="noopener">
+          <div class="icon ic-xhs"><img src="assets/icon-1.png" alt="小红书"></div>
+          <span class="name">小红书</span>
+          <span class="en">RED NOTE</span>
+        </a>
+
+        <a class="card" href="https://www.douyin.com" target="_blank" rel="noopener">
+          <div class="icon ic-dy"><img src="assets/icon-2.png" alt="抖音"></div>
+          <span class="name">抖音</span>
+          <span class="en">DOUYIN</span>
+        </a>
+
+        <a class="card" href="https://www.bilibili.com" target="_blank" rel="noopener">
+          <div class="icon ic-bili"><img src="assets/icon-3.png" alt="哔哩哔哩"></div>
+          <span class="name">哔哩哔哩</span>
+          <span class="en">BILIBILI</span>
+        </a>
+
+        <a class="card" href="https://www.hongguoduanju.com/" target="_blank" rel="noopener">
+          <div class="icon ic-hg"><img src="assets/icon-4.png" alt="红果短剧"></div>
+          <span class="name">红果短剧</span>
+          <span class="en">HONGGUO</span>
+        </a>
+
+      </div>
+
+      <div class="more">
+        <a href="https://weibo.com" target="_blank" rel="noopener">微博 🌐</a>
+        <a href="https://www.zhihu.com" target="_blank" rel="noopener">知乎 💭</a>
+        <a href="https://music.163.com" target="_blank" rel="noopener">网易云 🎵</a>
+        <a href="https://www.douban.com" target="_blank" rel="noopener">豆瓣 🎬</a>
+      </div>
+
+      <div class="fortune-zone">
+        <button class="fortune-btn" id="fortuneBtn">🎴 抽今日小签</button>
+        <p class="fortune-result" id="fortuneResult"></p>
+      </div>
+
+      <div class="note">
+        <p class="note-title">📝 小便签 · 自动保存</p>
+        <textarea id="noteArea" placeholder="写点想记的事，比如：明天记得喝水～"></textarea>
+      </div>
+
+      <footer>WINNIE'S LITTLE HOME 🤍</footer>
+    </div>
+  </section>
+
+<script>
+  const intro = document.getElementById('intro');
+  const home  = document.getElementById('home');
+  const video = intro.querySelector('video');
+
+  intro.addEventListener('click', () => {
+    intro.classList.add('hide');
+    home.classList.add('show');
+    video.pause(); // 进入主页后暂停视频，省资源
+    setTimeout(() => { intro.style.display = 'none'; }, 1000);
+  });
+
+  /* 时间问候语 */
+  const greetEl = document.getElementById('greet');
+  function greet() {
+    const now = new Date();
+    const h = now.getHours();
+    const t = now.toTimeString().slice(0, 5);
+    let word;
+    if (h < 5)       word = '夜深了，早点休息 🌙';
+    else if (h < 9)  word = '早上好，新的一天 ☀️';
+    else if (h < 12) word = '上午好，元气满满 🌿';
+    else if (h < 14) word = '中午好，记得吃饭 🍚';
+    else if (h < 18) word = '下午好，喝口水吧 🍵';
+    else if (h < 23) word = '晚上好，慢慢来 🌸';
+    else             word = '夜深了，早点休息 🌙';
+    greetEl.textContent = word + '　现在是 ' + t;
+  }
+  greet();
+  setInterval(greet, 30000);
+
+  /* 每日一句 */
+  const quotes = [
+    '保持热爱，奔赴山海',
+    '你笑起来真好看',
+    '今天的你也很棒哦',
+    '慢慢来，比较快',
+    '把日子过成喜欢的样子',
+    '星星也会在夜里发光',
+    '好运正在派送中 🍀',
+    '记得给自己一点甜',
+    '风很温柔，你也是',
+    '万事顺遂，毫无蹉跎'
+  ];
+  const day = Math.floor(Date.now() / 86400000);
+  document.getElementById('daily').textContent = '「 ' + quotes[day % quotes.length] + ' 」';
+
+  /* 点小熊的爱心彩蛋 */
+  const emojis = ['💗', '🤍', '✨', '⭐', '🎀'];
+  document.getElementById('bear').addEventListener('click', (e) => {
+    for (let i = 0; i < 4; i++) {
+      const s = document.createElement('span');
+      s.className = 'heart-pop';
+      s.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      s.style.left = (e.clientX - 30 + Math.random() * 60) + 'px';
+      s.style.top  = (e.clientY - 20 + Math.random() * 20) + 'px';
+      s.style.fontSize = (16 + Math.random() * 16) + 'px';
+      s.style.animationDelay = (i * 0.12) + 's';
+      document.body.appendChild(s);
+      setTimeout(() => s.remove(), 1800);
+    }
+  });
+
+  /* 今日小签：每天抽一次，抽过当天就固定 */
+  const fortunes = [
+    '大吉 🌟　今天的好运值拉满，放心冲！',
+    '上吉 🍑　会有小惊喜在等你',
+    '中吉 🌸　顺顺利利，适合做喜欢的事',
+    '小吉 🍀　留意身边的小美好',
+    '吉 ☁️　平平淡淡才是真',
+    '末吉 🌙　今晚早点睡，明天更好',
+    '吉 ✨　想做的事现在就开头吧'
+  ];
+  const todayKey = 'winnie-fortune-' + new Date().toISOString().slice(0, 10);
+  const fortuneResult = document.getElementById('fortuneResult');
+  function showFortune(text) {
+    fortuneResult.textContent = text;
+    fortuneResult.classList.add('show');
+    document.getElementById('fortuneBtn').textContent = '🎴 今天的小签';
+  }
+  const savedFortune = localStorage.getItem(todayKey);
+  if (savedFortune) showFortune(savedFortune);
+  document.getElementById('fortuneBtn').addEventListener('click', () => {
+    let text = localStorage.getItem(todayKey);
+    if (!text) {
+      text = fortunes[Math.floor(Math.random() * fortunes.length)];
+      localStorage.setItem(todayKey, text);
+    }
+    showFortune(text);
+  });
+
+  /* 小便签：本地自动保存 */
+  const noteArea = document.getElementById('noteArea');
+  noteArea.value = localStorage.getItem('winnie-note') || '';
+  noteArea.addEventListener('input', () => {
+    localStorage.setItem('winnie-note', noteArea.value);
+  });
+</script>
+</body>
+</html>
